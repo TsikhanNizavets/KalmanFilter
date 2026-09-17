@@ -1,0 +1,1 @@
+This project implements and visualizes a first-order exponential low-pass filter in C++. The sensor data is synthetic and includes Gaussian noise. I adapted the filter structure from an existing implementation while studying the underlying discrete-time equation.
