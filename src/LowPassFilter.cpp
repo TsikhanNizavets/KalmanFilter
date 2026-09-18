@@ -1,10 +1,5 @@
-#include <chrono>
 #include "LowPassFilter.hpp"
-
-static unsigned long get_micros() {
-    using namespace std::chrono;
-    return duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
-}
+#include "utils.hpp"
 
 LowPassFilter::LowPassFilter(
     float time_constant,
@@ -13,7 +8,7 @@ LowPassFilter::LowPassFilter(
 ) 
     : Tf(time_constant)
     , Ts(sampling_time)
-    , timestamp_prev(get_micros())
+    , timestamp_prev(utils::get_micros())
     , y_prev(y_init)
 {
 }
@@ -22,10 +17,10 @@ float LowPassFilter::operator() (float x) {
     float dt = Ts;
 
     if (dt <= 0.0f) {
-        unsigned long timestamp = get_micros();
+        unsigned long timestamp = utils::get_micros();
         dt = (timestamp - timestamp_prev) * 1e-6f;
 
-        if (dt <= 0.0f || dt > 0.3f) {
+        if (dt > 0.3f) {
             y_prev = x;
             timestamp_prev = timestamp;
             return x;
@@ -42,5 +37,5 @@ float LowPassFilter::operator() (float x) {
 
 void LowPassFilter::reset(float y_init) {
     y_prev = y_init;
-    timestamp_prev = get_micros();
+    timestamp_prev = utils::get_micros();
 }

@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(filter_demo
     src/main.cpp
     src/LowPassFilter.cpp
+    src/kalman_filter_1d.cpp
 )
 
 target_include_directories(filter_demo PRIVATE include)
