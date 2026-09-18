@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Compile source files into the filter_demo executable
 add_executable(filter_demo
     src/main.cpp
-    src/LowPassFilter.cpp
+    src/low_pass_filter.cpp
     src/kalman_filter_1d.cpp
 )
 

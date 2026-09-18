@@ -1,4 +1,4 @@
-#include "LowPassFilter.hpp"
+#include "low_pass_filter.hpp"
 #include "utils.hpp"
 
 LowPassFilter::LowPassFilter(

@@ -3,7 +3,7 @@
 #include <cmath>
 #include <random>
 #include <vector>
-#include "LowPassFilter.hpp"
+#include "low_pass_filter.hpp"
 #include "kalman_filter_1d.hpp"
 
 static constexpr float dt = 0.02f;

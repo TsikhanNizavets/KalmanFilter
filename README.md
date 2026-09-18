@@ -9,7 +9,7 @@ filters the noisy measurements, and saves the results to a CSV file.
 ## Project Structure
 
 - `src/main.cpp` - Generates sensor data and runs the filters
-- `src/LowPassFilter.cpp` - Low-pass filter implementation
+- `src/low_pass_filter.cpp` - Low-pass filter implementation
 - `src/kalman_filter_1d.cpp` - One-dimensional Kalman filter implementation
 - `include/` - Header files
 - `plot_data.py` - Creates a graph from the generated CSV data
