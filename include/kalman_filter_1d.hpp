@@ -8,6 +8,6 @@ class KalmanFilter1D {
     private:
         float x_pred, x_post;
         float p_pred, p_post;
-        float Ts, K, r_, q_;
+        float Ts, K, r, q;
         unsigned long timestamp_prev;
 };
