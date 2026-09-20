@@ -10,10 +10,11 @@ KalmanFilterConstantAcceleration1D::KalmanFilterConstantAcceleration1D(
     MatrixFunction g_function, 
     MatrixFunction q_function,
     Eigen::MatrixXf H_init, Eigen::MatrixXf R_init,
-    float sampling_time
+    float sampling_time,
+    bool timeout
 )
-    : x_pred(std::move(x_init))
-    , P_pred(std::move(P_init))
+    : x_post(std::move(x_init))
+    , P_post(std::move(P_init))
     , f_function(std::move(f_function))
     , g_function(std::move(g_function))
     , q_function(std::move(q_function))
@@ -21,7 +22,8 @@ KalmanFilterConstantAcceleration1D::KalmanFilterConstantAcceleration1D(
     , R(std::move(R_init))
     , Ts(sampling_time)
     , timestamp_prev(utils::get_micros())
-    , I(Eigen::MatrixXf::Identity(P_pred.rows(), P_pred.cols()))
+    , I(Eigen::MatrixXf::Identity(P_post.rows(), P_post.cols()))
+    , timeout(timeout)
 {
 }
 
@@ -32,8 +34,8 @@ Eigen::VectorXf KalmanFilterConstantAcceleration1D::operator() (Eigen::VectorXf 
         unsigned long timestamp = utils::get_micros();
         dt = (timestamp - timestamp_prev) * 1e-6f;
 
-        if (dt > 0.3f) {
-            P_pred = 1e4f * I;
+        if (dt > 0.3f && timeout) {
+            P_post = 1e4f * I;
         }
 
         timestamp_prev = timestamp;
@@ -43,14 +45,14 @@ Eigen::VectorXf KalmanFilterConstantAcceleration1D::operator() (Eigen::VectorXf 
     const Eigen::MatrixXf G = g_function(dt);
     const Eigen::MatrixXf Q = q_function(dt);
 
+    // Step Predict
+    x_pred = F * x_post + G * u;
+    P_pred = F * P_post * F.transpose() + Q;
+
     // Step Update
     K = P_pred * H.transpose() * (H * P_pred * H.transpose() + R).inverse();
     x_post = x_pred + K * (z - H * x_pred);
     P_post = (I - K * H) * P_pred * (I - K * H).transpose() + K * R * K.transpose();
-
-    // Step Predict
-    x_pred = F * x_post + G * u;
-    P_pred = F * P_post * F.transpose() + Q;
 
     return x_post;
 }

@@ -54,7 +54,7 @@ int main() {
     int x_dim = 3;
     int z_dim = 1;
     int u_dim = 1;
-    float process_noise_factor = 7e-4f;
+    float process_noise_factor = 33e-3f;
 
     Eigen::VectorXf x_init_vec (x_dim);
     x_init_vec << 0.0f, 0.0f, 0.0f;
@@ -62,7 +62,7 @@ int main() {
     Eigen::MatrixXf P_init_mat = Eigen::MatrixXf::Zero(x_dim, x_dim);
     P_init_mat.diagonal() << 1.0f, 1.0f, 1.0f;
 
-    auto f_function = [x_dim](float dt) {
+    auto f_function = [x_dim](float dt) -> Eigen::MatrixXf {
         Eigen::MatrixXf F(x_dim, x_dim);
 
         F << 1.0f, dt, dt * dt / 2,
@@ -72,7 +72,7 @@ int main() {
         return F;
     };
 
-    auto g_function = [x_dim, u_dim](float dt) {
+    auto g_function = [x_dim, u_dim](float dt) -> Eigen::MatrixXf {
         Eigen::MatrixXf G(x_dim, u_dim);
 
         G << 0.0f, 0.0f, 0.0f;
@@ -80,7 +80,7 @@ int main() {
         return G;
     };
 
-    auto q_function = [x_dim, process_noise_factor](float dt) {
+    auto q_function = [x_dim, process_noise_factor](float dt) -> Eigen::MatrixXf {
         Eigen::MatrixXf Q(x_dim, x_dim);
 
         Q << dt * dt * dt * dt / 4.0f,

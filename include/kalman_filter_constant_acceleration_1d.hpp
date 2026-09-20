@@ -13,7 +13,8 @@ class KalmanFilterConstantAcceleration1D {
             MatrixFunction g_function,
             MatrixFunction q_function,
             Eigen::MatrixXf H_init, Eigen::MatrixXf R_init,
-            float sampling_time = -1.0f);
+            float sampling_time = -1.0f,
+            bool timeout = false);
 
         Eigen::VectorXf operator() (Eigen::VectorXf z, Eigen::VectorXf u);
 
@@ -32,4 +33,5 @@ class KalmanFilterConstantAcceleration1D {
         float Ts;
         unsigned long timestamp_prev;
         const Eigen::MatrixXf I;
+        bool timeout;
 };
