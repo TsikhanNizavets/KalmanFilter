@@ -10,26 +10,50 @@
 
 static constexpr float dt = 0.02f;
 static constexpr int total_samples = 500;
+static constexpr float sensor_noise_variance = 0.0025f;
+constexpr float simulation_jerk_variance = 33.0e-3f;
+constexpr float filter_jerk_variance = 33.0e-0f;
+
+static constexpr float dt2 = dt * dt;
+static constexpr float dt3 = dt * dt * dt;
 
 struct Reading {
     float true_position;
-    float raw;
+    float raw_position;
 };
 
 std::vector<Reading> generate_raw_position_data() {
     std::vector<Reading> data(total_samples, Reading{0.0f, 0.0f});
 
     std::mt19937 gen(42);
-    std::normal_distribution<float> sensor_noise(0.0f, 0.05f);
+    std::normal_distribution<float> sensor_noise(0.0f, std::sqrt(sensor_noise_variance));
+    std::normal_distribution<float> process_noise(0.0f, std::sqrt(simulation_jerk_variance));
+
+    float pos_err = 0.0f;
+    float vel_err = 0.0f;
+    float acc_err = 0.0f;
 
     for (int i = 0; i < total_samples; ++i) {
         float time = i * dt;
 
-        float plate = 10.0f * std::exp(-std::pow((time - 5.0f) / 2.5f, 4.0f));
-        float raw_sample = plate + sensor_noise(gen);
+        if (i > 0) {
+            float j = process_noise(gen);
+            pos_err += vel_err * dt
+                    + acc_err * dt2 / 2
+                    + j * dt3 / 6.0f;
+            vel_err += acc_err * dt
+                    + j * dt2 / 2.0f;
+            acc_err += j * dt;
+        }
+        
+        float u = (time - 5.0f) / 2.5f;
+        float u4 = u * u * u * u;
 
-        data[i].true_position = plate;
-        data[i].raw = raw_sample;
+        float true_position_sample = 10.0f * std::exp(-u4) + pos_err;
+        float raw_position_sample = true_position_sample + sensor_noise(gen);
+
+        data[i].true_position = true_position_sample;
+        data[i].raw_position = raw_position_sample;
     }
 
     return data;
@@ -54,7 +78,6 @@ int main() {
     int x_dim = 3;
     int z_dim = 1;
     int u_dim = 1;
-    float process_noise_factor = 33e-3f;
 
     Eigen::VectorXf x_init_vec (x_dim);
     x_init_vec << 0.0f, 0.0f, 0.0f;
@@ -80,22 +103,20 @@ int main() {
         return G;
     };
 
-    auto q_function = [x_dim, process_noise_factor](float dt) -> Eigen::MatrixXf {
+    auto q_function = [x_dim](float dt) -> Eigen::MatrixXf {
         Eigen::MatrixXf Q(x_dim, x_dim);
 
-        Q << dt * dt * dt * dt / 4.0f,
-            dt * dt * dt / 2.0f,
-            dt * dt / 2.0f,
+        float dt2 = dt * dt;
+        float dt3 = dt * dt * dt;
+        float dt4 = dt2 * dt2;
+        float dt5 = dt3 * dt2;
+        float dt6 = dt3 * dt3;
 
-            dt * dt * dt / 2.0f,
-            dt * dt,
-            dt,
+        Q << dt6 / 36.0f, dt5 / 12.0f, dt4 / 6.0f,
+            dt5 / 12.0f, dt4 / 4.0f, dt3 / 2.0f,
+            dt4 / 6.0f, dt3 / 2.0f, dt2;
 
-            dt * dt / 2.0f,
-            dt,
-            1.0f;
-
-        return Q * process_noise_factor;
+        return Q * filter_jerk_variance;
     };
 
     Eigen::MatrixXf H (z_dim, x_dim);
@@ -111,16 +132,16 @@ int main() {
         std::cerr << "Failed to open output file\n";
         return 1;
     }
-    outfile << "time,true_position,raw,low_pass,kalman,kalman_const_acc\n";
+    outfile << "time,true_position,raw_position,low_pass,kalman,kalman_const_acc\n";
 
     for (int i = 0; i < total_samples; ++i) {
         const Reading& reading = readings[i];
 
-        float low_pass = lpf(reading.raw);
-        float kalman1d = kf1d(reading.raw);
-        Eigen::VectorXf kalmanca1d = kfca1d(Eigen::VectorXf{{reading.raw}}, Eigen::VectorXf{{0.0f}});
+        float low_pass = lpf(reading.raw_position);
+        float kalman1d = kf1d(reading.raw_position);
+        Eigen::VectorXf kalmanca1d = kfca1d(Eigen::VectorXf{{reading.raw_position}}, Eigen::VectorXf{{0.0f}});
 
-        outfile << i * dt << "," << reading.true_position << "," << reading.raw << "," 
+        outfile << i * dt << "," << reading.true_position << "," << reading.raw_position << "," 
             << low_pass << "," << kalman1d << "," << kalmanca1d(0) << "\n";
     }
 

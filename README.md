@@ -28,3 +28,9 @@ Install the Python packages with:
 
 ```bash
 python3 -m pip install pandas matplotlib
+```
+
+### Run
+```bash
+cmake --build build/ --target filter_demo  && ./build/filter_demo && python3 plot_data.py
+```
