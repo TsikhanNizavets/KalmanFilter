@@ -21,5 +21,9 @@ target_link_libraries(filter_demo PRIVATE kalman_filters)
 
 target_compile_definitions(filter_demo PRIVATE SENSOR_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/sensor_data.csv")
 
+# Innovation Analysis
+add_library(innovation_analysis src/innovation_analysis.cpp)
+target_include_directories(innovation_analysis PUBLIC include)
+
 # Test
 add_subdirectory(test)

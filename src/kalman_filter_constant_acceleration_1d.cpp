@@ -54,5 +54,17 @@ Eigen::VectorXf KalmanFilterConstantAcceleration1D::operator() (Eigen::VectorXf 
     x_post = x_pred + K * (z - H * x_pred);
     P_post = (I - K * H) * P_pred * (I - K * H).transpose() + K * R * K.transpose();
 
+    const Eigen::VectorXf innovation = z - H * x_pred;
+    innovations.push_back(innovation);
+    gains.push_back(K);
+
     return x_post;
+}
+
+std::vector<Eigen::VectorXf> KalmanFilterConstantAcceleration1D::get_innovations() {
+    return innovations;
+}
+
+std::vector<Eigen::MatrixXf> KalmanFilterConstantAcceleration1D::get_gains() {
+    return gains;
 }

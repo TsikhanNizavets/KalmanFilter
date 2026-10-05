@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <eigen3/Eigen/Dense>
+#include <vector>
 
 class KalmanFilterConstantAcceleration1D {
     public:
@@ -17,6 +18,10 @@ class KalmanFilterConstantAcceleration1D {
             bool timeout = false);
 
         Eigen::VectorXf operator() (Eigen::VectorXf z, Eigen::VectorXf u);
+
+        std::vector<Eigen::VectorXf> get_innovations ();
+
+        std::vector<Eigen::MatrixXf> get_gains ();
 
     private:
         // Updated during filtering
@@ -34,4 +39,6 @@ class KalmanFilterConstantAcceleration1D {
         unsigned long timestamp_prev;
         const Eigen::MatrixXf I;
         bool timeout;
+        std::vector<Eigen::VectorXf> innovations;
+        std::vector<Eigen::MatrixXf> gains;
 };
