@@ -2,7 +2,7 @@
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 #include "utils.hpp"
-#include "kalman_filter_constant_acceleration_1d.hpp"
+#include "linear_kalman_filter.hpp"
 
 KalmanFilterConstantAcceleration1D::KalmanFilterConstantAcceleration1D(
     Eigen::VectorXf x_init, Eigen::MatrixXf P_init,

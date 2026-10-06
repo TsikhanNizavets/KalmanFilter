@@ -5,62 +5,25 @@
 #include <vector>
 #include <eigen3/Eigen/Dense>
 #include "low_pass_filter.hpp"
-#include "kalman_filter_1d.hpp"
-#include "kalman_filter_constant_acceleration_1d.hpp"
+#include "scalar_kalman_filter.hpp"
+#include "linear_kalman_filter.hpp"
 #include "innovation_analysis.hpp"
+#include "data_generation/synthetic_data.hpp"
 
-static constexpr float dt = 0.02f;
-static constexpr int total_samples = 5000;
-static constexpr float sensor_noise_variance = 0.0025f;
-constexpr float simulation_jerk_variance = 33.0e-3f;
-constexpr float filter_jerk_variance = 33.0e-1f;
-
-static constexpr float dt2 = dt * dt;
-static constexpr float dt3 = dt * dt * dt;
-
-struct Reading {
-    float true_position;
-    float raw_position;
-};
-
-std::vector<Reading> generate_raw_position_data() {
-    std::vector<Reading> data(total_samples, Reading{0.0f, 0.0f});
-
-    std::mt19937 gen(42);
-    std::normal_distribution<float> sensor_noise(0.0f, std::sqrt(sensor_noise_variance));
-    std::normal_distribution<float> process_noise(0.0f, std::sqrt(simulation_jerk_variance));
-
-    float pos_err = 0.0f;
-    float vel_err = 0.0f;
-    float acc_err = 0.0f;
-    float vel = 0.5f;
-
-    for (int i = 0; i < total_samples; ++i) {
-        float time = i * dt;
-
-        if (i > 0) {
-            float j = process_noise(gen);
-            pos_err += vel_err * dt
-                    + acc_err * dt2 / 2
-                    + j * dt3 / 6.0f;
-            vel_err += acc_err * dt
-                    + j * dt2 / 2.0f;
-            acc_err += j * dt;
-        }
-
-        float true_position_sample = vel * time + pos_err;
-        float raw_position_sample = true_position_sample + sensor_noise(gen);
-
-        data[i].true_position = true_position_sample;
-        data[i].raw_position = raw_position_sample;
-    }
-
-    return data;
-}
+constexpr float dt = 0.02f;
+constexpr int total_samples = 5000;
+constexpr float true_measurement_noise_variance = 0.0025f;
+constexpr float assumed_measurement_noise_variance = 0.0025f;
+constexpr float true_process_noise_variance = 33.0e-3f;
+constexpr float assumed_process_noise_variance = 33.0e-1f;
+constexpr int random_seed = 42;
 
 int main() {
     float Ts = dt;
-    std::vector<Reading> readings = generate_raw_position_data();
+    std::vector<Reading> readings = generate_random_jerk_data(dt,total_samples, 
+                                                                true_process_noise_variance, 
+                                                                true_measurement_noise_variance, 
+                                                                random_seed);
 
     // Kalman Filter Constant Acceleration 1D
     int x_dim = 3;
@@ -104,14 +67,14 @@ int main() {
             dt5 / 12.0f, dt4 / 4.0f, dt3 / 2.0f,
             dt4 / 6.0f, dt3 / 2.0f, dt2;
 
-        return Q * filter_jerk_variance;
+        return Q * assumed_process_noise_variance;
     };
 
     Eigen::MatrixXf H (z_dim, x_dim);
     H << 1.0f, 0.0f, 0.0f;
 
     Eigen::MatrixXf R (z_dim, z_dim);
-    R << 0.0025f;
+    R << assumed_measurement_noise_variance;
     
     KalmanFilterConstantAcceleration1D kalman(x_init_vec, P_init_mat, f_function, g_function, q_function, H, R, Ts);
 
@@ -139,7 +102,7 @@ int main() {
     output.innovation = kalman.get_innovations();
     output.gain = kalman.get_gains();
 
-    std::ofstream outfile(MEHRA_TEST_PATH);
+    std::ofstream outfile(MEHRA_WHITENESS_DATA_PATH);
     if (!outfile) {
         std::cerr << "Failed to open output file\n";
         return 1;

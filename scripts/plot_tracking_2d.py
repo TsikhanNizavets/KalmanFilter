@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("./build/test/2dtest_data.csv")
+df = pd.read_csv("./build/examples/tracking_2d_data.csv")
 
 fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 

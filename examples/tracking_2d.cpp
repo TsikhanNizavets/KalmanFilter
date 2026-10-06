@@ -2,7 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
-#include "kalman_filter_constant_acceleration_1d.hpp"
+#include "linear_kalman_filter.hpp"
 
 int main() {
     static constexpr float dt = 1.0f;
@@ -102,7 +102,7 @@ int main() {
 
     auto kalman = KalmanFilterConstantAcceleration1D(x_init, P_init, f_function, g_function, q_function, H_init, R_init, dt);
 
-    std::ofstream outfile(TEST2D_DATA_PATH);
+    std::ofstream outfile(TRACKING_2D_DATA_PATH);
     if (!outfile) {
         std::cerr << "Failed to open output file\n";
         return 1;

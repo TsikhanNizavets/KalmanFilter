@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("./build/sensor_data.csv")
+df = pd.read_csv("./build/examples/filter_comparison_data.csv")
 
 plt.figure(figsize=(10, 5))
 plt.plot(df["time"], df["raw_position"], "ro", markersize=3, label="Raw Input")

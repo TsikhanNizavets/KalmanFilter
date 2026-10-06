@@ -1,4 +1,4 @@
-#include "kalman_filter_1d.hpp"
+#include "scalar_kalman_filter.hpp"
 #include "utils.hpp"
 
 KalmanFilter1D::KalmanFilter1D(float x_init, float p_init, float r_init, float q_init, float sampling_time) 

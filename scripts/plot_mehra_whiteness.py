@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("./build/test/mehra_test_data.csv")
+df = pd.read_csv("./build/examples/mehra_whiteness_data.csv")
 
 fig, axes = plt.subplots(3, 2, figsize=(10, 8), sharex=True)
 
