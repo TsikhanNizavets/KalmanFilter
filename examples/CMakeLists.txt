@@ -26,4 +26,5 @@ add_executable(mehra_whiteness
 )
 target_link_libraries(mehra_whiteness PRIVATE filters innovation_analysis)
 
-target_compile_definitions(mehra_whiteness PRIVATE MEHRA_WHITENESS_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/mehra_whiteness_data.csv")
+target_compile_definitions(mehra_whiteness PRIVATE MEHRA_WHITENESS_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/mehra_whiteness_data.csv"
+                                                NORMALIZED_AUTOCORRELATION_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/normalized_autocorrelation_data.csv")

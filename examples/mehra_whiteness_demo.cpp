@@ -11,7 +11,7 @@
 #include "data_generation/synthetic_data.hpp"
 
 constexpr float dt = 0.02f;
-constexpr int total_samples = 5000;
+constexpr int total_samples = 4000;
 constexpr float true_measurement_noise_variance = 0.0025f;
 constexpr float assumed_measurement_noise_variance = 0.0025f;
 constexpr float true_process_noise_variance = 33.0e-3f;
@@ -115,8 +115,33 @@ int main() {
                 << "," << output.gain[i](0, 0) << "," << output.gain[i](1, 0) << "," << output.gain[i](2, 0)
                 << "\n";
     }
+    outfile.close();
 
-    std::cout << InnovationAnalysis::areInnovationsWhite(output.innovation, 100, 200) << "\n";
+    const WhitenessResult result = InnovationAnalysis::analyze(output.innovation, 100, 200);
+
+    std::cout << "Outside bounds: " << result.values_outside_bounds 
+              << " / " << result.values_checked << "\n";
+
+    std::cout << "Passes test: " << std::boolalpha << result.passes_test << "\n";
+
+    const Eigen::MatrixXf C_0  = result.autocorrelation_matrices[0];
+    const float bound = 1.96f / std::sqrt(result.samples_used);
+
+    outfile.open(NORMALIZED_AUTOCORRELATION_DATA_PATH);
+    if (!outfile) {
+        std::cerr << "Failed to open output file\n";
+        return 1;
+    }
+
+    outfile << "lag,autocorrelation,bound\n"
+                "0,1," << bound << "\n";
+    
+
+    for (int i = 1; i < result.autocorrelation_matrices.size(); ++i) {
+        for (int j = 0; j < result.autocorrelation_matrices[0].rows(); ++j) {
+            outfile << i << "," << result.autocorrelation_matrices[i](j, j) / C_0(j, j) << "\n";
+        }
+    }
 
     return 0;
 }

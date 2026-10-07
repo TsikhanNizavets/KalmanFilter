@@ -2,11 +2,12 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include <cmath>
 #include "innovation_analysis.hpp"
 
 InnovationAnalysis::InnovationAnalysis() {}
 
-bool InnovationAnalysis::areInnovationsWhite(std::vector<Eigen::VectorXf> innovations, int k, int num_innovations_to_skip) {
+WhitenessResult InnovationAnalysis::analyze(const std::vector<Eigen::VectorXf>& innovations, int k, int num_innovations_to_skip) {
     if (innovations.empty()) {
         throw std::invalid_argument("Innovations must not be empty");
     }
@@ -44,6 +45,16 @@ bool InnovationAnalysis::areInnovationsWhite(std::vector<Eigen::VectorXf> innova
         }
     }
     
-    std::cout << "count_out: " << count_out << "\n";
-    return (count_out < dim * k * 0.05f);
+    WhitenessResult result;
+
+    result.autocorrelation_matrices = C;
+    result.samples_used = N - num_innovations_to_skip;
+    result.values_checked = dim * k;
+    result.values_outside_bounds = count_out;
+
+    result.normalized_confidence_bound = 1.96f / std::sqrt(result.samples_used);
+
+    result.passes_test = count_out < 0.05f * result.values_checked;
+
+    return result;
 }
