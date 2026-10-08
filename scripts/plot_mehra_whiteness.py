@@ -105,3 +105,5 @@ zoom_axes.grid(True)
 zoom_fig.tight_layout()
 
 plt.show(block=True)
+
+# show kalman gains separate and detailed

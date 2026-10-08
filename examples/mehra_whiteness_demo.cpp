@@ -17,6 +17,8 @@ constexpr float assumed_measurement_noise_variance = 0.0025f;
 constexpr float true_process_noise_variance = 33.0e-3f;
 constexpr float assumed_process_noise_variance = 33.0e-1f;
 constexpr int random_seed = 42;
+constexpr int maximum_lag = 100;
+constexpr int num_innovations_to_skip = 200;
 
 int main() {
     float Ts = dt;
@@ -117,7 +119,7 @@ int main() {
     }
     outfile.close();
 
-    const WhitenessResult result = InnovationAnalysis::analyze(output.innovation, 100, 200);
+    const WhitenessResult result = InnovationAnalysis::analyze(output.innovation, maximum_lag, num_innovations_to_skip);
 
     std::cout << "Outside bounds: " << result.values_outside_bounds 
               << " / " << result.values_checked << "\n";

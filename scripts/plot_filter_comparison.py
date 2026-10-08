@@ -10,10 +10,12 @@ plt.plot(df["time"], df["kalman"], label="Kalman Filter 1D", color="green", line
 plt.plot(df["time"], df["kalman_const_acc"], label="Kalman Filter Constant Acceleration 1D", color="purple", linewidth=2)
 plt.plot(df["time"], df["true_position"], label="True Position", color="black", linewidth=2)
 
+plt.xlim(df["time"].iloc[0], df["time"].iloc[-1])
 plt.xlabel("Time (s)")
 plt.ylabel("Position")
 plt.title("Low-Pass Filter vs Kalman Filter 1D vs Kalman Filter Constant Acceleration 1D")
 plt.legend()
 plt.grid(True)
 
+plt.tight_layout()
 plt.show()
