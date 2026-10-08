@@ -93,7 +93,7 @@ int main() {
     for (int i = 0; i < total_samples; ++i) {
         const Reading& reading = readings[i];
 
-        Eigen::VectorXf kalman_est = kalman(Eigen::VectorXf{{reading.raw_position}}, Eigen::VectorXf{{0.0f}});
+        Eigen::VectorXf kalman_est = kalman(Eigen::VectorXf{{reading.raw_position}}, Eigen::VectorXf{{0.0f}}); // Refactor u
 
         output.time[i] = i * dt;
         output.true_position[i] = reading.true_position;

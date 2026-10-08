@@ -28,6 +28,7 @@ target_link_libraries(innovation_analysis PUBLIC Eigen3::Eigen)
 
 
 # Tests
+enable_testing()
 add_subdirectory(tests)
 
 

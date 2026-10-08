@@ -44,7 +44,7 @@ int main() {
         Eigen::Vector2f( 20.87f,  298.77f)
     };
 
-    Eigen::VectorXf u(1);
+    Eigen::VectorXf u(1); // Refactor
     u << 0.0f;
 
     int x_dim = 6;

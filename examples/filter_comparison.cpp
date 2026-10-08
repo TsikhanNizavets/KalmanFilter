@@ -18,7 +18,6 @@ constexpr float assumed_process_noise_variance = 33.0e-0f;
 constexpr int random_seed = 42;
 
 int main() {
-    float Ts = dt;
     std::vector<Reading> readings = generate_bump_trajectory_data(dt,total_samples, 
                                                                     true_process_noise_variance, 
                                                                     true_measurement_noise_variance, 
@@ -26,6 +25,7 @@ int main() {
 
     // Low-Pass Filter
     float Tf = 0.05f;
+    float Ts = dt;
     LowPassFilter lpf(Tf, Ts);
 
     // Kalman Filter 1D
@@ -33,7 +33,7 @@ int main() {
     float p_init = 0.1f;
     float r = 0.0025f;
     float q = 0.00033f;
-    KalmanFilter1D kf1d(x_init, p_init, r, q, Ts);
+    KalmanFilter1D kf1d(x_init, p_init, r, q, dt);
 
     // Kalman Filter Constant Acceleration 1D
     int x_dim = 3;
@@ -86,7 +86,7 @@ int main() {
     Eigen::MatrixXf R (z_dim, z_dim);
     R << assumed_measurement_noise_variance;
     
-    KalmanFilterConstantAcceleration1D kfca1d(x_init_vec, P_init_mat, f_function, g_function, q_function, H, R, Ts);
+    KalmanFilterConstantAcceleration1D kfca1d(x_init_vec, P_init_mat, f_function, g_function, q_function, H, R, dt);
 
     std::ofstream outfile(FILTER_COMPARISON_DATA_PATH);
     if (!outfile) {

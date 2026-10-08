@@ -1,0 +1,19 @@
+find_package(GTest CONFIG REQUIRED)
+
+add_executable(scalar_kalman_filter_test scalar_kalman_filter_test.cpp)
+target_link_libraries(scalar_kalman_filter_test PRIVATE filters GTest::gtest_main)
+
+add_executable(linear_kalman_filter_test linear_kalman_filter_test.cpp)
+target_link_libraries(linear_kalman_filter_test PRIVATE filters GTest::gtest_main)
+
+add_executable(low_pass_filter_test low_pass_filter_test.cpp)
+target_link_libraries(low_pass_filter_test PRIVATE filters GTest::gtest_main)
+
+add_executable(innovation_analysis_test innovation_analysis_test.cpp)
+target_link_libraries(innovation_analysis_test PRIVATE innovation_analysis GTest::gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(scalar_kalman_filter_test)
+gtest_discover_tests(linear_kalman_filter_test)
+gtest_discover_tests(low_pass_filter_test)
+gtest_discover_tests(innovation_analysis_test)

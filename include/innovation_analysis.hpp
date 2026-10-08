@@ -1,6 +1,7 @@
 #pragma once
 
 #include <eigen3/Eigen/Dense>
+#include <vector>
 
 struct WhitenessResult {
     std::vector<Eigen::MatrixXf> autocorrelation_matrices;

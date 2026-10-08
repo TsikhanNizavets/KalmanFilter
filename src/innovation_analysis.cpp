@@ -48,7 +48,7 @@ WhitenessResult InnovationAnalysis::analyze(const std::vector<Eigen::VectorXf>& 
     WhitenessResult result;
 
     result.autocorrelation_matrices = C;
-    result.samples_used = N - num_innovations_to_skip;
+    result.samples_used = N - num_innovations_to_skip;  // use smaples_used by calculation of C[i]
     result.values_checked = dim * k;
     result.values_outside_bounds = count_out;
 
