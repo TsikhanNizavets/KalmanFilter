@@ -4,7 +4,7 @@ project(KalmanFilterDemo CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Eigen3 3.4 REQUIRED NO_MODULE) # Add later fallback download for Eigen
+find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 
 
 # Filters
@@ -28,8 +28,11 @@ target_link_libraries(innovation_analysis PUBLIC Eigen3::Eigen)
 
 
 # Tests
-enable_testing()
-add_subdirectory(tests)
+include (CTest)
+
+if (BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 
 # Examples

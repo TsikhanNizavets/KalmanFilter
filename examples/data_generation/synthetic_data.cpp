@@ -1,4 +1,5 @@
 #include "synthetic_data.hpp"
+
 #include <cmath>
 #include <random>
 
@@ -63,7 +64,7 @@ std::vector<Reading> generate_random_jerk_data(float dt, int total_samples,
     float pos_err = 0.0f;
     float vel_err = 0.0f;
     float acc_err = 0.0f;
-    float vel = 0.5f;
+    constexpr float vel = 0.5f;
 
     for (int i = 0; i < total_samples; ++i) {
         float time = i * dt;

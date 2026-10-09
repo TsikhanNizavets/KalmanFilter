@@ -1,13 +1,13 @@
 #pragma once
 
-class KalmanFilter1D {
+class ScalarKalmanFilter {
     public:
-        KalmanFilter1D(float x_init, float p_init, float r, float q, float Ts = -1.0f);
+        ScalarKalmanFilter(float x_init, float p_init, float r, float q, float sampling_time = -1.0f);
 
         float operator()(float z);
     private:
         float x_pred, x_post;
         float p_pred, p_post;
-        float Ts, K, r, q;
+        float K, r, q, sampling_time;
         unsigned long timestamp_prev;
 };

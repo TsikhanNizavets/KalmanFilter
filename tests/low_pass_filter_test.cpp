@@ -1,15 +1,17 @@
-#include <cmath>
-#include <gtest/gtest.h>
 #include "low_pass_filter.hpp"
 
+#include <cmath>
+
+#include <gtest/gtest.h>
+
 TEST(LowPassFilterTest, ComputesTwoUpdatesAndReset) {
-    constexpr float Tf = 2.0f;
-    constexpr float Ts = 1.0f;
+    constexpr float time_constant = 2.0f;
+    constexpr float sampling_time = 1.0f;
     constexpr float tolerance = 1e-6;
     constexpr float y_init = 1.0f;
     constexpr float y_reset = 10.0f;
 
-    LowPassFilter filter(Tf, Ts, y_init); 
+    LowPassFilter filter(time_constant, sampling_time, y_init);
 
     const float first_estimate = filter(4.0f);
     ASSERT_TRUE(std::isfinite(first_estimate));

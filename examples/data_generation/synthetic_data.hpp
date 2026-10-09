@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <eigen3/Eigen/Dense>
 
 struct Reading {
     float true_position;

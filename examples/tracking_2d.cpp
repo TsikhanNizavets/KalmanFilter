@@ -1,8 +1,11 @@
-#include <eigen3/Eigen/Dense>
-#include <vector>
+#include "linear_kalman_filter.hpp"
+
+#include <cstddef>
 #include <fstream>
 #include <iostream>
-#include "linear_kalman_filter.hpp"
+#include <vector>
+
+#include <Eigen/Dense>
 
 int main() {
     static constexpr float dt = 1.0f;
@@ -44,13 +47,13 @@ int main() {
         Eigen::Vector2f( 20.87f,  298.77f)
     };
 
-    Eigen::VectorXf u(1); // Refactor
+    Eigen::VectorXf u(1);
     u << 0.0f;
 
-    int x_dim = 6;
-    int z_dim = 2;
-    int u_dim = 1;
-    float process_noise_variance = 0.04;
+    constexpr int x_dim = 6;
+    constexpr int z_dim = 2;
+    constexpr int u_dim = 1;
+    constexpr float process_noise_variance = 0.04;
 
     Eigen::VectorXf x_init (x_dim);
     x_init << 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f;
@@ -100,7 +103,7 @@ int main() {
     R_init << 9.0f, 0.0f,
               0.0f, 9.0f;
 
-    auto kalman = KalmanFilterConstantAcceleration1D(x_init, P_init, f_function, g_function, q_function, H_init, R_init, dt);
+    auto kalman = LinearKalmanFilter(x_init, P_init, f_function, g_function, q_function, H_init, R_init, dt);
 
     std::ofstream outfile(TRACKING_2D_DATA_PATH);
     if (!outfile) {
@@ -109,7 +112,7 @@ int main() {
     }
     outfile << "time,measured_x,measured_y,pos_x_est,vel_x_est,acc_x_est,pos_y_est,vel_y_est,acc_y_est\n";
 
-    for (int i = 0; i < 35; ++i) {
+    for (std::size_t i = 0; i < measurements.size(); ++i) {
         Eigen::VectorXf x_est = kalman(measurements[i], u);
         
         outfile << i * dt << "," << measurements[i][0] << "," << measurements[i][1] 

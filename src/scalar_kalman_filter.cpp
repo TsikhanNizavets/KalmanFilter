@@ -1,18 +1,18 @@
 #include "scalar_kalman_filter.hpp"
 #include "utils.hpp"
 
-KalmanFilter1D::KalmanFilter1D(float x_init, float p_init, float r_init, float q_init, float sampling_time) 
+ScalarKalmanFilter::ScalarKalmanFilter(float x_init, float p_init, float r_init, float q_init, float sampling_time)
     : x_post(x_init)
     , p_post(p_init)
     , r(r_init)
     , q(q_init)
-    , Ts(sampling_time)
+    , sampling_time(sampling_time)
     , timestamp_prev(utils::get_micros())
 {
 }
 
-float KalmanFilter1D::operator() (float z) {
-    if (Ts <= 0.0f) {
+float ScalarKalmanFilter::operator() (float z) {
+    if (sampling_time <= 0.0f) {
         unsigned long timestamp = utils::get_micros();
 
         if ((timestamp - timestamp_prev) * 1e-6f > 0.3f) {

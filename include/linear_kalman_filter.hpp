@@ -1,21 +1,23 @@
 #pragma once
 
 #include <functional>
-#include <eigen3/Eigen/Dense>
 #include <vector>
 
-class KalmanFilterConstantAcceleration1D {
+#include <Eigen/Dense>
+
+class LinearKalmanFilter {
     public:
         using MatrixFunction = std::function<Eigen::MatrixXf(float)>;
 
-        KalmanFilterConstantAcceleration1D(
+        LinearKalmanFilter(
             Eigen::VectorXf x_init, Eigen::MatrixXf P_init,
             MatrixFunction f_function, 
             MatrixFunction g_function,
             MatrixFunction q_function,
             Eigen::MatrixXf H_init, Eigen::MatrixXf R_init,
             float sampling_time = -1.0f,
-            bool timeout = false);
+            // Reset covariance after a long pause when using automatic timing.
+            bool reset_covariance_on_timeout = false);
 
         Eigen::VectorXf operator() (Eigen::VectorXf z, Eigen::VectorXf u);
 
@@ -35,10 +37,10 @@ class KalmanFilterConstantAcceleration1D {
         Eigen::MatrixXf H, R;
 
         //Other
-        float Ts;
+        float sampling_time;
         unsigned long timestamp_prev;
         const Eigen::MatrixXf I;
-        bool timeout;
+        bool reset_covariance_on_timeout;
         std::vector<Eigen::VectorXf> innovations;
         std::vector<Eigen::MatrixXf> gains;
 };

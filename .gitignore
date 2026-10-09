@@ -68,8 +68,12 @@ vcpkg_installed/
 Testing/
 .cache/
 
+# Local Python environment and generated caches
+.venv/
+__pycache__/
+*.pyc
+
 TODOs.md
 AGENTS.md
 On_the_identification_of_variances_and_adaptive_Kalman_filtering.pdf
 docs/
-scripts/requirements.txt

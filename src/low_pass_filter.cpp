@@ -6,15 +6,15 @@ LowPassFilter::LowPassFilter(
     float sampling_time,
     float y_init
 ) 
-    : Tf(time_constant)
-    , Ts(sampling_time)
+    : time_constant(time_constant)
+    , sampling_time(sampling_time)
     , timestamp_prev(utils::get_micros())
     , y_prev(y_init)
 {
 }
 
 float LowPassFilter::operator() (float x) {
-    float dt = Ts;
+    float dt = sampling_time;
 
     if (dt <= 0.0f) {
         unsigned long timestamp = utils::get_micros();
@@ -28,7 +28,7 @@ float LowPassFilter::operator() (float x) {
         timestamp_prev = timestamp;
     }
 
-    float alpha = Tf / (Tf + dt);
+    float alpha = time_constant / (time_constant + dt);
     float y = alpha * y_prev + (1 - alpha) * x;
 
     y_prev = y;

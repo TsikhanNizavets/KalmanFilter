@@ -1,13 +1,13 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <random>
-#include <vector>
-#include <eigen3/Eigen/Dense>
+#include "data_generation/synthetic_data.hpp"
+#include "linear_kalman_filter.hpp"
 #include "low_pass_filter.hpp"
 #include "scalar_kalman_filter.hpp"
-#include "linear_kalman_filter.hpp"
-#include "data_generation/synthetic_data.hpp"
+
+#include <fstream>
+#include <iostream>
+#include <vector>
+
+#include <Eigen/Dense>
 
 constexpr float dt = 0.02f;
 constexpr int total_samples = 500;
@@ -24,24 +24,27 @@ int main() {
                                                                     random_seed);
 
     // Low-Pass Filter
-    float Tf = 0.05f;
-    float Ts = dt;
-    LowPassFilter lpf(Tf, Ts);
+    constexpr float time_constant = 0.05f;
+    constexpr float sampling_time = dt;
+    LowPassFilter low_pass_filter(time_constant, sampling_time);
 
     // Kalman Filter 1D
-    float x_init = 0.0f;
-    float p_init = 0.1f;
-    float r = 0.0025f;
-    float q = 0.00033f;
-    KalmanFilter1D kf1d(x_init, p_init, r, q, dt);
+    constexpr float x_init = 0.0f;
+    constexpr float p_init = 0.1f;
+    constexpr float r = 0.0025f;
+    constexpr float q = 0.00033f;
+    ScalarKalmanFilter scalar_kalman_filter(x_init, p_init, r, q, dt);
 
     // Kalman Filter Constant Acceleration 1D
-    int x_dim = 3;
-    int z_dim = 1;
-    int u_dim = 1;
+    constexpr int x_dim = 3;
+    constexpr int z_dim = 1;
+    constexpr int u_dim = 1;
 
     Eigen::VectorXf x_init_vec (x_dim);
     x_init_vec << 0.0f, 0.0f, 0.0f;
+
+    Eigen::VectorXf u(u_dim);
+    u << 0.0f;
 
     Eigen::MatrixXf P_init_mat = Eigen::MatrixXf::Zero(x_dim, x_dim);
     P_init_mat.diagonal() << 1.0f, 1.0f, 1.0f;
@@ -86,7 +89,7 @@ int main() {
     Eigen::MatrixXf R (z_dim, z_dim);
     R << assumed_measurement_noise_variance;
     
-    KalmanFilterConstantAcceleration1D kfca1d(x_init_vec, P_init_mat, f_function, g_function, q_function, H, R, dt);
+    LinearKalmanFilter linear_kalman_filter(x_init_vec, P_init_mat, f_function, g_function, q_function, H, R, dt);
 
     std::ofstream outfile(FILTER_COMPARISON_DATA_PATH);
     if (!outfile) {
@@ -98,12 +101,12 @@ int main() {
     for (int i = 0; i < total_samples; ++i) {
         const Reading& reading = readings[i];
 
-        float low_pass = lpf(reading.raw_position);
-        float kalman1d = kf1d(reading.raw_position);
-        Eigen::VectorXf kalmanca1d = kfca1d(Eigen::VectorXf{{reading.raw_position}}, Eigen::VectorXf{{0.0f}});
+        float lpf = low_pass_filter(reading.raw_position);
+        float skf = scalar_kalman_filter(reading.raw_position);
+        Eigen::VectorXf lkf = linear_kalman_filter(Eigen::VectorXf{{reading.raw_position}}, u);
 
         outfile << i * dt << "," << reading.true_position << "," << reading.raw_position << "," 
-            << low_pass << "," << kalman1d << "," << kalmanca1d(0) << "\n";
+            << lpf << "," << skf << "," << lkf(0) << "\n";
     }
 
     return 0;

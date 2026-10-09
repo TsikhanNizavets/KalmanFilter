@@ -1,13 +1,13 @@
-#include <eigen3/Eigen/Dense>
-#include <vector>
-#include <fstream>
-#include <iostream>
-#include <cmath>
-#include <gtest/gtest.h>
-#include <unordered_map>
 #include "linear_kalman_filter.hpp"
 
-TEST(LinearKalmanFilterTest, 2DTracking) {
+#include <cstddef>
+#include <unordered_map>
+#include <vector>
+
+#include <Eigen/Dense>
+#include <gtest/gtest.h>
+
+TEST(LinearKalmanFilterTest, TracksTwoDimensionalMotion) {
     static constexpr float dt = 1.0f;
     const std::vector<Eigen::Vector2f> measurements = {
         Eigen::Vector2f(301.50f, -401.46f),
@@ -103,16 +103,16 @@ TEST(LinearKalmanFilterTest, 2DTracking) {
     R_init << 9.0f, 0.0f,
               0.0f, 9.0f;
 
-    auto kalman = KalmanFilterConstantAcceleration1D(x_init, P_init, f_function, g_function, q_function, H_init, R_init, dt);
+    auto kalman = LinearKalmanFilter(x_init, P_init, f_function, g_function, q_function, H_init, R_init, dt);
 
-    std::unordered_map<int, Eigen::Vector<float, x_dim>> x_est_test;
+    std::unordered_map<std::size_t, Eigen::Vector<float, x_dim>> x_est_test;
     x_est_test[0] << 299.1f, 199.4f, 66.47f, -398.27f, -265.52f, -88.51f;
     x_est_test[1] << 300.37f, -28.22f, -66.53f, -378.49f, 64.87f, 100.93f;
     x_est_test[34] << 19.3f, -25.99f, -0.74f, 297.79f, 2.03f, -1.86f;
 
     constexpr float tolerance = 0.01f;
 
-    for (int i = 0; i < 35; ++i) {
+    for (std::size_t i = 0; i < measurements.size(); ++i) {
         Eigen::VectorXf x_est = kalman(measurements[i], u);
         
         if (i == 0 || i == 1 || i == 34) {

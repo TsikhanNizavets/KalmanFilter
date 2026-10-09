@@ -2,8 +2,8 @@
 
 class LowPassFilter {
     public:
-        // Constructor: Tf = time constant, Ts = optional fixed sampling time
-        LowPassFilter(float Tf, float Ts = -1.0f, float initial_y = 0.0f);
+        // Constructor: time_constant = time constant, sampling_time = optional fixed sampling time
+        LowPassFilter(float time_constant, float sampling_time = -1.0f, float initial_y = 0.0f);
 
         // Filter computation method
         float operator()(float x);
@@ -11,8 +11,8 @@ class LowPassFilter {
         void reset(float y_init);
 
     private:
-        float Tf; // Time con   stant (seconds)
-        float Ts; // Fixed sampling period (seconds)
+        float time_constant; // Time constant (seconds)
+        float sampling_time; // Fixed sampling period (seconds)
         unsigned long timestamp_prev; // Microseconds timestamp of last execution
         float y_prev;                 // Output value from previous iteration
 };

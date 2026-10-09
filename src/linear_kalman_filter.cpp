@@ -1,17 +1,18 @@
-#include <functional>
-#include <eigen3/Eigen/Dense>
-#include <iostream>
-#include "utils.hpp"
 #include "linear_kalman_filter.hpp"
+#include "utils.hpp"
 
-KalmanFilterConstantAcceleration1D::KalmanFilterConstantAcceleration1D(
+#include <utility>
+
+#include <Eigen/Dense>
+
+LinearKalmanFilter::LinearKalmanFilter(
     Eigen::VectorXf x_init, Eigen::MatrixXf P_init,
     MatrixFunction f_function, 
     MatrixFunction g_function, 
     MatrixFunction q_function,
     Eigen::MatrixXf H_init, Eigen::MatrixXf R_init,
     float sampling_time,
-    bool timeout
+    bool reset_covariance_on_timeout
 )
     : x_post(std::move(x_init))
     , P_post(std::move(P_init))
@@ -20,21 +21,21 @@ KalmanFilterConstantAcceleration1D::KalmanFilterConstantAcceleration1D(
     , q_function(std::move(q_function))
     , H(std::move(H_init))
     , R(std::move(R_init))
-    , Ts(sampling_time)
+    , sampling_time(sampling_time)
     , timestamp_prev(utils::get_micros())
     , I(Eigen::MatrixXf::Identity(P_post.rows(), P_post.cols()))
-    , timeout(timeout)
+    , reset_covariance_on_timeout(reset_covariance_on_timeout)
 {
 }
 
-Eigen::VectorXf KalmanFilterConstantAcceleration1D::operator() (Eigen::VectorXf z, Eigen::VectorXf u) {
-    float dt = Ts;
+Eigen::VectorXf LinearKalmanFilter::operator() (Eigen::VectorXf z, Eigen::VectorXf u) {
+    float dt = sampling_time;
     
     if (dt <= 0.0f) {
         unsigned long timestamp = utils::get_micros();
         dt = (timestamp - timestamp_prev) * 1e-6f;
 
-        if (dt > 0.3f && timeout) {
+        if (dt > 0.3f && reset_covariance_on_timeout) {
             P_post = 1e4f * I;
         }
 
@@ -61,10 +62,10 @@ Eigen::VectorXf KalmanFilterConstantAcceleration1D::operator() (Eigen::VectorXf 
     return x_post;
 }
 
-std::vector<Eigen::VectorXf> KalmanFilterConstantAcceleration1D::get_innovations() {
+std::vector<Eigen::VectorXf> LinearKalmanFilter::get_innovations() {
     return innovations;
 }
 
-std::vector<Eigen::MatrixXf> KalmanFilterConstantAcceleration1D::get_gains() {
+std::vector<Eigen::MatrixXf> LinearKalmanFilter::get_gains() {
     return gains;
 }

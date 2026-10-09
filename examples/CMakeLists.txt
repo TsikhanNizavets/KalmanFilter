@@ -30,17 +30,17 @@ target_compile_definitions(mehra_whiteness PRIVATE MEHRA_WHITENESS_DATA_PATH="${
                                                 NORMALIZED_AUTOCORRELATION_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/normalized_autocorrelation_data.csv")
 
 # Mehra Q Comparison
-add_executable(mehra_Q_comparison
-    mehra_Q_comparison_demo.cpp
+add_executable(mehra_q_comparison
+    mehra_q_comparison_demo.cpp
     data_generation/synthetic_data.cpp
 )
-target_link_libraries(mehra_Q_comparison PRIVATE filters innovation_analysis)
+target_link_libraries(mehra_q_comparison PRIVATE filters innovation_analysis)
 
-target_compile_definitions(mehra_Q_comparison PRIVATE MEHRA_WHITENESS_Q_LARGER_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/mehra_whiteness_data_Q_larger.csv"
-                                                NORMALIZED_AUTOCORRELATION_Q_LARGER_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/normalized_autocorrelation_data_Q_larger.csv"
+target_compile_definitions(mehra_q_comparison PRIVATE MEHRA_WHITENESS_Q_LARGER_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/mehra_whiteness_data_q_larger.csv"
+                                                NORMALIZED_AUTOCORRELATION_Q_LARGER_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/normalized_autocorrelation_data_q_larger.csv"
 
-                                                MEHRA_WHITENESS_Q_MATCHED_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/mehra_whiteness_data_Q_matched.csv"
-                                                NORMALIZED_AUTOCORRELATION_Q_MATCHED_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/normalized_autocorrelation_data_Q_matched.csv"
+                                                MEHRA_WHITENESS_Q_MATCHED_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/mehra_whiteness_data_q_matched.csv"
+                                                NORMALIZED_AUTOCORRELATION_Q_MATCHED_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/normalized_autocorrelation_data_q_matched.csv"
 
-                                                MEHRA_WHITENESS_Q_SMALLER_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/mehra_whiteness_data_Q_smaller.csv"
-                                                NORMALIZED_AUTOCORRELATION_Q_SMALLER_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/normalized_autocorrelation_data_Q_smaller.csv")
+                                                MEHRA_WHITENESS_Q_SMALLER_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/mehra_whiteness_data_q_smaller.csv"
+                                                NORMALIZED_AUTOCORRELATION_Q_SMALLER_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/normalized_autocorrelation_data_q_smaller.csv")

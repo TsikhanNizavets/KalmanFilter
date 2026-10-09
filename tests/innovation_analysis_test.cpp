@@ -1,10 +1,12 @@
+#include "innovation_analysis.hpp"
+
 #include <cmath>
 #include <stdexcept>
 #include <vector>
-#include <gtest/gtest.h>
-#include "innovation_analysis.hpp"
 
-TEST(InnovationAnalysisTest, FailSequence) {
+#include <gtest/gtest.h>
+
+TEST(InnovationAnalysisTest, RejectsCorrelatedLagOne) {
     constexpr int total_samples = 100;
     constexpr int max_lag = 1;
     constexpr int num_innovations_to_skip = 0; 
@@ -32,7 +34,7 @@ TEST(InnovationAnalysisTest, FailSequence) {
     EXPECT_FALSE(result.passes_test);
 }
 
-TEST(InnovationAnalysisTest, PassSequence) {
+TEST(InnovationAnalysisTest, AcceptsUncorrelatedLagOne) {
     constexpr int total_samples = 100;
     constexpr int max_lag = 1;
     constexpr int num_innovations_to_skip = 0; 
@@ -60,7 +62,7 @@ TEST(InnovationAnalysisTest, PassSequence) {
     EXPECT_TRUE(result.passes_test);
 }
 
-TEST(InnovationAnalysisTest, SkipElements) {
+TEST(InnovationAnalysisTest, SkipsInitialSamples) {
     constexpr int total_samples = 102;
     constexpr int max_lag = 1;
     constexpr int num_innovations_to_skip = 2; 
@@ -91,7 +93,7 @@ TEST(InnovationAnalysisTest, SkipElements) {
     EXPECT_TRUE(result.passes_test);
 }
 
-TEST(InnovationAnalysisTest, InvalidArguments) {
+TEST(InnovationAnalysisTest, RejectsInvalidArguments) {
     constexpr int total_samples = 100;
     const std::vector<Eigen::VectorXf> innovations(total_samples, Eigen::VectorXf::Ones(1));
     const std::vector<Eigen::VectorXf> empty_innovations;

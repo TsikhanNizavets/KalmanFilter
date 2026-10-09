@@ -1,7 +1,8 @@
 #pragma once
 
-#include <eigen3/Eigen/Dense>
 #include <vector>
+
+#include <Eigen/Dense>
 
 struct WhitenessResult {
     std::vector<Eigen::MatrixXf> autocorrelation_matrices;
@@ -16,14 +17,8 @@ struct WhitenessResult {
 
 class InnovationAnalysis {
     public:
-        InnovationAnalysis();
-
         static WhitenessResult analyze(
             const std::vector<Eigen::VectorXf>& innovations, 
-            int k, 
+            int max_lag,
             int num_innovations_to_skip);
-            
-    private:
-
-
 };

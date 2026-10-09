@@ -1,42 +1,43 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <random>
-#include <vector>
-#include <array>
-#include <eigen3/Eigen/Dense>
-#include "low_pass_filter.hpp"
-#include "scalar_kalman_filter.hpp"
-#include "linear_kalman_filter.hpp"
-#include "innovation_analysis.hpp"
 #include "data_generation/synthetic_data.hpp"
+#include "innovation_analysis.hpp"
+#include "linear_kalman_filter.hpp"
+
+#include <array>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <vector>
+
+#include <Eigen/Dense>
 
 constexpr float dt = 0.02f;
 constexpr int total_samples = 4000;
 constexpr float true_measurement_noise_variance = 0.0025f;
 constexpr float assumed_measurement_noise_variance = 0.0025f;
 constexpr float true_process_noise_variance = 33.0e-3f;
-constexpr std::array<float, 3> assumed_process_noise_variance {33.0e-1f, 33.0e-3f, 33.0e-5f};
+constexpr std::array<float, 3> assumed_process_noise_variances {33.0e-1f, 33.0e-3f, 33.0e-5f};
 constexpr int random_seed = 42;
-constexpr int maximum_lag = 100;
+constexpr int max_lag = 100;
 constexpr int num_innovations_to_skip = 200;
 constexpr std::array<const char*, 3> MEHRA_WHITENESS_DATA_PATH {MEHRA_WHITENESS_Q_LARGER_DATA_PATH, MEHRA_WHITENESS_Q_MATCHED_DATA_PATH, MEHRA_WHITENESS_Q_SMALLER_DATA_PATH};
 constexpr std::array<const char*, 3> NORMALIZED_AUTOCORRELATION_DATA_PATH {NORMALIZED_AUTOCORRELATION_Q_LARGER_DATA_PATH, NORMALIZED_AUTOCORRELATION_Q_MATCHED_DATA_PATH, NORMALIZED_AUTOCORRELATION_Q_SMALLER_DATA_PATH};
 
 int main() {
-    float Ts = dt;
     std::vector<Reading> readings = generate_random_jerk_data(dt,total_samples, 
                                                                 true_process_noise_variance, 
                                                                 true_measurement_noise_variance, 
                                                                 random_seed);
     for (int j = 0; j < 3; ++j) {
         // Kalman Filter Constant Acceleration 1D
-        int x_dim = 3;
-        int z_dim = 1;
-        int u_dim = 1;
+        constexpr int x_dim = 3;
+        constexpr int z_dim = 1;
+        constexpr int u_dim = 1;
 
         Eigen::VectorXf x_init_vec (x_dim);
         x_init_vec << 0.0f, 0.0f, 0.0f;
+
+        Eigen::VectorXf u(u_dim);
+        u << 0.0f;
 
         Eigen::MatrixXf P_init_mat = Eigen::MatrixXf::Zero(x_dim, x_dim);
         P_init_mat.diagonal() << 1.0f, 1.0f, 1.0f;
@@ -72,7 +73,7 @@ int main() {
                 dt5 / 12.0f, dt4 / 4.0f, dt3 / 2.0f,
                 dt4 / 6.0f, dt3 / 2.0f, dt2;
 
-            return Q * assumed_process_noise_variance[j];
+            return Q * assumed_process_noise_variances[j];
         };
 
         Eigen::MatrixXf H (z_dim, x_dim);
@@ -81,22 +82,22 @@ int main() {
         Eigen::MatrixXf R (z_dim, z_dim);
         R << assumed_measurement_noise_variance;
     
-        KalmanFilterConstantAcceleration1D kalman(x_init_vec, P_init_mat, f_function, g_function, q_function, H, R, Ts);
+        LinearKalmanFilter kalman(x_init_vec, P_init_mat, f_function, g_function, q_function, H, R, dt);
 
         struct Output {
             std::vector<float> time = std::vector<float>(total_samples);
             std::vector<float> true_position = std::vector<float>(total_samples);
             std::vector<float> raw_position = std::vector<float>(total_samples);
             std::vector<float> estimated_position = std::vector<float>(total_samples);
-            std::vector<Eigen::VectorXf> innovation;
-            std::vector<Eigen::MatrixXf> gain;
+            std::vector<Eigen::VectorXf> innovations;
+            std::vector<Eigen::MatrixXf> gains;
         };
         Output output;
 
         for (int i = 0; i < total_samples; ++i) {
             const Reading& reading = readings[i];
 
-            Eigen::VectorXf kalman_est = kalman(Eigen::VectorXf{{reading.raw_position}}, Eigen::VectorXf{{0.0f}});
+            Eigen::VectorXf kalman_est = kalman(Eigen::VectorXf{{reading.raw_position}}, u);
 
             output.time[i] = i * dt;
             output.true_position[i] = reading.true_position;
@@ -104,8 +105,8 @@ int main() {
             output.estimated_position[i] = kalman_est(0);
         }
 
-        output.innovation = kalman.get_innovations();
-        output.gain = kalman.get_gains();
+        output.innovations = kalman.get_innovations();
+        output.gains = kalman.get_gains();
 
         std::ofstream outfile(MEHRA_WHITENESS_DATA_PATH[j]);
         if (!outfile) {
@@ -116,13 +117,13 @@ int main() {
         outfile << "time,true_position,raw_position,estimated_position,innovation,pos_gain,vel_gain,acc_gain\n";
         for (int i = 0; i < total_samples; ++i) {
             outfile << output.time[i] << "," << output.true_position[i] << "," << output.raw_position[i] 
-                    << "," << output.estimated_position[i] << "," << output.innovation[i] 
-                    << "," << output.gain[i](0, 0) << "," << output.gain[i](1, 0) << "," << output.gain[i](2, 0)
+                    << "," << output.estimated_position[i] << "," << output.innovations[i]
+                    << "," << output.gains[i](0, 0) << "," << output.gains[i](1, 0) << "," << output.gains[i](2, 0)
                     << "\n";
         }
         outfile.close();
 
-        const WhitenessResult result = InnovationAnalysis::analyze(output.innovation, maximum_lag, num_innovations_to_skip);
+        const WhitenessResult result = InnovationAnalysis::analyze(output.innovations, max_lag, num_innovations_to_skip);
 
         std::cout << "Outside bounds: " << result.values_outside_bounds 
                 << " / " << result.values_checked << "\n";
