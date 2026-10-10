@@ -2,22 +2,22 @@
 
 ## Whiteness test and linear kalman filter
 
-[mehra_q_comparison_demo.cpp](../examples/mehra_q_comparison_demo.cpp) and [mehra_whiteness_demo.cpp](../examples/mehra_whiteness_demo.cpp) use the test from Mehra's Section V, implemented in [innovation_analysis.cpp](../src/innovation_analysis.cpp), to analyse correlations between the innovations of a linear Kalman filter and examine how differences between $Q_{assumed}$ and $Q_{true}$ affect these correlations. The same test can also be used to examine the effect of differences between $R_{assumed}$ and $R_{true}$.
+[mehra_q_comparison_demo.cpp](../examples/mehra_q_comparison_demo.cpp) and [mehra_whiteness_demo.cpp](../examples/mehra_whiteness_demo.cpp) use the test from Mehra's Section V, implemented in [innovation_analysis.cpp](../src/innovation_analysis.cpp), to analyse correlations between the innovations of a linear Kalman filter and examine how differences between <i>Q</i><sub>assumed</sub> and <i>Q</i><sub>true</sub> affect these correlations. The same test can also be used to examine the effect of differences between <i>R</i><sub>assumed</sub> and <i>R</i><sub>true</sub>.
 
 ### Linear kalman filter 
 
 Linear kalman filter is implemented in [linear_kalman_filter.cpp](../src/linear_kalman_filter.cpp). It uses following state model:
 
-$$
+```math
 x_i=F x_{i-1}+G u_i+w_i,
 \qquad z_i=Hx_i+\epsilon_i.
-$$
+```
 
 The Kalman filter performs the following prediction and update steps:
 
 **Prediction**
 
-$$
+```math
 \begin{aligned}
 \hat{x}_{i|i-1}
 &= F\hat{x}_{i-1|i-1}+Gu_i
@@ -25,11 +25,11 @@ $$
 P_{i|i-1}
 &= FP_{i-1|i-1}F^T+Q_{\mathrm{assumed}}
 \end{aligned}
-$$
+```
 
 **Update**
 
-$$
+```math
 \begin{aligned}
 K_i
 &= P_{i|i-1}H^T
@@ -43,11 +43,11 @@ P_{i|i}
 &= (I-K_iH)P_{i|i-1}(I-K_iH)^T
    +K_iR_{\mathrm{assumed}}K_i^T
 \end{aligned}
-$$
+```
 
 where
 
-$$
+```math
 \begin{array}{ll}
 x_i \in \mathbb{R}^{n_x \times 1}\text{ — state vector}
 &
@@ -73,44 +73,50 @@ K \in \mathbb{R}^{n_x \times n_z}\text{ — kalman gain}
 &
 \qquad P_i \in \mathbb{R}^{n_x \times n_x}\text{ — estimate covariance}
 \end{array}
-$$
+```
 
-$Q_{\mathrm{true}}$ and $R_{\mathrm{true}}$ are the covariances of the simulated process noise and measurement noise, respectively. $Q_{\mathrm{assumed}}$ and $R_{\mathrm{assumed}}$ are the corresponding covariances assumed in the filter equations and may differ from the true values.
+<i>Q</i><sub>true</sub> and <i>R</i><sub>true</sub> are the covariances of the simulated process noise and measurement noise, respectively. <i>Q</i><sub>assumed</sub> and <i>R</i><sub>assumed</sub> are the corresponding covariances assumed in the filter equations and may differ from the true values.
 
 The process and measurement noises are independent of each other and independent across samples.
 
-The notation $\hat{x}_{i|i-1}$ denotes the predicted state estimate before using measurement $z_i$, while $\hat{x}_{i|i}$ denotes the corrected estimate after using it. The same distinction applies to $P_{i|i-1}$ and $P_{i|i}$.
+The notation $`\hat{x}`$<sub>i|i−1</sub> denotes the predicted state estimate before using measurement <i>z</i><sub>i</sub>, while $`\hat{x}`$<sub>i|i</sub> denotes the corrected estimate after using it. The same distinction applies to <i>P</i><sub>i|i−1</sub> and <i>P</i><sub>i|i</sub>.
 
-The unadorned $x_i$ in the system model denotes the true state; hats mark estimates.
+The unadorned <i>x</i><sub>i</sub> in the system model denotes the true state; hats mark estimates.
 
 ### Whiteness test
 
 Following [Mehra's Section V](https://doi.org/10.1109/TAC.1970.1099422), printed pp. 177–178, the main experiment checks scalar innovations:
 
-$$
+```math
 \nu_i=z_i-H\hat{x}_{i|i-1}.
-$$
+```
 
-After skipping the first $s$ of $T$ samples, $N=T-s$ samples remain.
-For lags $\ell=0,\ldots,L$, where $L$ is the maximum lag, compute
+After skipping the first <i>s</i> of <i>T</i> samples, <i>N</i> = <i>T</i> − <i>s</i> samples remain.
+For lags <i>ℓ</i> = 0, …, <i>L</i>, where <i>L</i> is the maximum lag, compute
 
-$$
-\begin{aligned}
-\widehat C_\ell
-&=\frac{1}{N}\sum_{i=s+\ell}^{T-1}\nu_i\nu_{i-\ell}^{T}
-\\[2em]
+```math
+\widehat{C}_\ell
+=\frac{1}{N}\sum_{i=s+\ell}^{T-1}\nu_i\nu_{i-\ell}^{T}
+```
+
+```math
 [\widehat{\rho}_\ell]_{ij}
-&=
+=
 \frac{[\widehat{C}_\ell]_{ij}}
 {\left([\widehat{C}_0]_{ii}\,[\widehat{C}_0]_{jj}\right)^{1/2}}.
-\end{aligned}
-$$
+```
 
-Here $i,j$ are the row and column indices of the correlation matrix. The test checks only its diagonal elements, where $i=j$.
+Here <i>i</i>, <i>j</i> are the row and column indices of the correlation matrix. The test checks only its diagonal elements, where <i>i</i> = <i>j</i>.
 
 Initial samples are skipped to reduce startup effects. Steady-state operation and zero-mean innovations are assumed, following Mehra.
 
-At lags $1,\ldots,L$, count the correlations outside the approximate 95% bounds $\pm1.96/\sqrt N$. The test passes only when fewer than 5% of the tested correlations lie outside these bounds. Lag zero supplies normalization and is excluded from the count.
+At lags 1, …, <i>L</i>, count the correlations outside the approximate 95% bounds:
+
+```math
+\pm\frac{1.96}{\sqrt{N}}.
+```
+
+The test passes only when fewer than 5% of the tested correlations lie outside these bounds. Lag zero supplies normalization and is excluded from the count.
 
 Passing this finite-sample rule does not prove whiteness.
 
@@ -128,20 +134,20 @@ Visualisation: [plot_mehra_q_comparison.cpp](../scripts/plot_mehra_q_comparison.
 
 | Setting | Value |
 |:---:|:---:|
-| Sampling interval $dt$ | 0.02 s |
+| Sampling interval <i>dt</i> | 0.02 s |
 | Measurements per filter | 4,000 |
-| True initial state $x_0$ | $[0,0.5,0]^T$ |
-| Initial state estimate $\hat{x}_{0\vert0}$ | $[0,0,0]^T$ |
-| Control inputs $u_i$ | $[0]^T$ |
-| Initial estimate covariance $P_{0\vert0}$ | $\begin{bmatrix}1&0&0\\0&1&0\\0&0&1\end{bmatrix}$ |
-| State transition matrix $F$ | $\begin{bmatrix}1&\Delta t&\Delta t^2/2\\0&1&\Delta t\\0&0&1\end{bmatrix}$ |
-| Control matrix $G$ | $[0,0,0]^T$ |
-| Observation matrix $H$ | $[1,0,0]$ |
-| Process noise covariance matrix $Q$ | $q_j\begin{bmatrix}\Delta t^6/36&\Delta t^5/12&\Delta t^4/6\\\Delta t^5/12&\Delta t^4/4&\Delta t^3/2\\\Delta t^4/6&\Delta t^3/2&\Delta t^2\end{bmatrix}$ |
-| True process noise variance $q_{j,\mathrm{true}}$ |  $0.033$ |
-| Assumed process noise variances | $3.3$, $0.033$ and $0.00033$ |
-| True measurement noise variance $R_{\mathrm{true}}$ | $[0.0025]$ |
-| Assumed measurement noise variance $R_{\mathrm{assumed}}$ | $[0.0025]$ |
+| True initial state <i>x</i><sub>0</sub> | [0, 0.5, 0]<sup>T</sup> |
+| Initial state estimate $`\hat{x}`$<sub>0&#124;0</sub> | [0, 0, 0]<sup>T</sup> |
+| Control inputs <i>u</i><sub>i</sub> | [0]<sup>T</sup> |
+| Initial estimate covariance <i>P</i><sub>0&#124;0</sub> | $`\begin{bmatrix}1&0&0\\0&1&0\\0&0&1\end{bmatrix}`$ |
+| State transition matrix <i>F</i> | $`\begin{bmatrix}1&\Delta t&\Delta t^2/2\\0&1&\Delta t\\0&0&1\end{bmatrix}`$ |
+| Control matrix <i>G</i> | [0, 0, 0]<sup>T</sup> |
+| Observation matrix <i>H</i> | [1, 0, 0] |
+| Process noise covariance matrix <i>Q</i> | $`q_j\begin{bmatrix}\Delta t^6/36&\Delta t^5/12&\Delta t^4/6\\\Delta t^5/12&\Delta t^4/4&\Delta t^3/2\\\Delta t^4/6&\Delta t^3/2&\Delta t^2\end{bmatrix}`$ |
+| True process noise variance <i>q</i><sub>j, true</sub> | 0.033 |
+| Assumed process noise variances <i>q</i><sub>j, assumed</sub> | 3.3, 0.033 and 0.00033 |
+| True measurement noise variance <i>R</i><sub>true</sub> | [0.0025] |
+| Assumed measurement noise variance <i>R</i><sub>assumed</sub> | [0.0025] |
 | Startup innovations skipped | 200 |
 | Tested lags | 1–100 |
 
@@ -200,7 +206,7 @@ The bump curve is generated with [synthetic_data.cpp](../examples/data_generatio
 
 The graph shows three different filters.
 The linear Kalman filter uses an assumed process noise variance that is higher than the true process noise variance.
-Without this increase, the filter overshoots because the state transition matrix $F$ describes motion with constant acceleration, while the true trajectory follows a bump curve.
+Without this increase, the filter overshoots because the state transition matrix <i>F</i> describes motion with constant acceleration, while the true trajectory follows a bump curve.
 
 ![Filter comparison](<figures/plot_filter_comparison.png>)
 

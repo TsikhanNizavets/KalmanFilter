@@ -7,6 +7,7 @@ fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
 axes[0].plot(df["time"], df["vel_x_est"], marker="o", label="vel x est - time", color="blue", linewidth=2)
 axes[0].set_ylabel("Vel x est")
+axes[0].set_title("vel x est - time")
 axes[0].legend()
 axes[0].grid(True)
 

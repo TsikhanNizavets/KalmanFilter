@@ -6,10 +6,13 @@ autocorrelation_data = pd.read_csv("./build/examples/normalized_autocorrelation_
 
 bound = autocorrelation_data["bound"].iloc[0]
 
+num_innovations_to_skip = 200
+correlation_start_time = filter_output_data["time"].iloc[num_innovations_to_skip]
+
 fig, axes = plt.subplots(3, 2, figsize=(10, 8), sharex=False)
 
+axes[0][0].plot(filter_output_data["time"], filter_output_data["raw_position"], label="Raw Position", color="red", marker=".", linestyle="None", markersize=3)
 axes[0][0].plot(filter_output_data["time"], filter_output_data["true_position"], label="True Position", color="black", linewidth=1)
-axes[0][0].plot(filter_output_data["time"], filter_output_data["raw_position"], label="Raw Position", color="red", linewidth=1)
 axes[0][0].plot(filter_output_data["time"], filter_output_data["estimated_position"], label="Estimated Position", color="blue", linewidth=1)
 axes[0][0].set_ylabel("Position")
 axes[0][0].set_xlabel("Time (s)")
@@ -23,18 +26,21 @@ axes[1][0].legend()
 axes[1][0].grid(True)
 
 axes[0][1].plot(filter_output_data["time"], filter_output_data["pos_gain"], label="Position Gain", color="red", linewidth=2)
+axes[0][1].axvline(correlation_start_time, color="black", linestyle="-.", linewidth=1.5, label="Correlation data start")
 axes[0][1].set_ylabel("Position Gain")
 axes[0][1].set_xlabel("Time (s)")
 axes[0][1].legend()
 axes[0][1].grid(True)
 
 axes[1][1].plot(filter_output_data["time"], filter_output_data["vel_gain"], label="Velocity Gain", color="red", linewidth=2)
+axes[1][1].axvline(correlation_start_time, color="black", linestyle="-.", linewidth=1.5, label="Correlation data start")
 axes[1][1].set_ylabel("Velocity Gain")
 axes[1][1].set_xlabel("Time (s)")
 axes[1][1].legend()
 axes[1][1].grid(True)
 
 axes[2][1].plot(filter_output_data["time"], filter_output_data["acc_gain"], label="Acceleration Gain", color="red", linewidth=2)
+axes[2][1].axvline(correlation_start_time, color="black", linestyle="-.", linewidth=1.5, label="Correlation data start")
 axes[2][1].set_xlabel("Time (s)")
 axes[2][1].set_ylabel("Acceleration Gain")
 axes[2][1].legend()
@@ -64,12 +70,12 @@ passes_test = values_outside_bounds < 0.05 * values_checked
 if passes_test:
     axes[2][0].set_title(
         f"Outside bounds: {values_outside_bounds}/{values_checked} "
-        f"({outside_percentage:.1f}%) < 5% — Whiteness test: PASS"
+        f"({outside_percentage:.1f}%) < 5% — Whiteness test: $\\mathbf{{PASS}}$"
     )
 else:
     axes[2][0].set_title(
         f"Outside bounds: {values_outside_bounds}/{values_checked} "
-        f"({outside_percentage:.1f}%) >= 5% — Whiteness test: FAIL"
+        f"({outside_percentage:.1f}%) $\\geq$ 5% — Whiteness test: $\\mathbf{{FAIL}}$"
     )
 
 axes[2][0].legend()
@@ -89,7 +95,7 @@ zoom_data = filter_output_data[
 
 zoom_fig, zoom_axes = plt.subplots(figsize=(10, 5))
 
-zoom_axes.plot(zoom_data["time"], zoom_data["raw_position"], color="red", linewidth=1, label="Raw Position")
+zoom_axes.plot(zoom_data["time"], zoom_data["raw_position"], color="red", marker=".", linestyle="None", markersize=3, label="Raw Position")
 
 zoom_axes.plot(zoom_data["time"], zoom_data["true_position"], color="black", linewidth=1.5, label="True Position")
 
@@ -105,5 +111,3 @@ zoom_axes.grid(True)
 zoom_fig.tight_layout()
 
 plt.show(block=True)
-
-# show kalman gains separate and detailed

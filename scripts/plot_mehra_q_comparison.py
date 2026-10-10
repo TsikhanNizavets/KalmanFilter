@@ -20,8 +20,8 @@ zoom_end_time = 70.0
 fig, axes = plt.subplots(3, 3, figsize=(18, 12), sharex=False)
 
 # Larger Q
+axes[0][0].plot(filter_output_data_q_larger["time"], filter_output_data_q_larger["raw_position"], label="Raw Position", color="red", marker=".", linestyle="None", markersize=3)
 axes[0][0].plot(filter_output_data_q_larger["time"], filter_output_data_q_larger["true_position"], label="True Position", color="black", linewidth=1)
-axes[0][0].plot(filter_output_data_q_larger["time"], filter_output_data_q_larger["raw_position"], label="Raw Position", color="red", linewidth=1)
 axes[0][0].plot(filter_output_data_q_larger["time"], filter_output_data_q_larger["estimated_position"], label="Estimated Position", color="blue", linewidth=1)
 axes[0][0].set_title("Larger Q", fontsize=14)
 axes[0][0].set_ylabel("Position")
@@ -34,7 +34,7 @@ zoom_data_q_larger = filter_output_data_q_larger[
     & (filter_output_data_q_larger["time"] <= zoom_end_time)
 ]
 
-axes[1][0].plot(zoom_data_q_larger["time"], zoom_data_q_larger["raw_position"], color="red", linewidth=1, label="Raw Position")
+axes[1][0].plot(zoom_data_q_larger["time"], zoom_data_q_larger["raw_position"], color="red", marker=".", linestyle="None", markersize=3, label="Raw Position")
 axes[1][0].plot(zoom_data_q_larger["time"], zoom_data_q_larger["true_position"], color="black", linewidth=1.5, label="True Position")
 axes[1][0].plot(zoom_data_q_larger["time"], zoom_data_q_larger["estimated_position"], color="blue", linewidth=1.5, label="Estimated Position")
 axes[1][0].set_xlim(zoom_start_time, zoom_end_time)
@@ -65,13 +65,13 @@ passes_test_q_larger = values_outside_bounds_q_larger < 0.05 * values_checked_q_
 if passes_test_q_larger:
     axes[2][0].set_title(
         f"Outside bounds: {values_outside_bounds_q_larger}/{values_checked_q_larger} "
-        f"({outside_percentage_q_larger:.1f}%) < 5%\nWhiteness test: PASS",
+        f"({outside_percentage_q_larger:.1f}%) < 5%\nWhiteness test: $\\mathbf{{PASS}}$",
         fontsize=10
     )
 else:
     axes[2][0].set_title(
         f"Outside bounds: {values_outside_bounds_q_larger}/{values_checked_q_larger} "
-        f"({outside_percentage_q_larger:.1f}%) >= 5%\nWhiteness test: FAIL",
+        f"({outside_percentage_q_larger:.1f}%) $\\geq$ 5%\nWhiteness test: $\\mathbf{{FAIL}}$",
         fontsize=10
     )
 
@@ -80,8 +80,8 @@ axes[2][0].grid(True)
 
 
 # Matched Q
+axes[0][1].plot(filter_output_data_q_matched["time"], filter_output_data_q_matched["raw_position"], label="Raw Position", color="red", marker=".", linestyle="None", markersize=3)
 axes[0][1].plot(filter_output_data_q_matched["time"], filter_output_data_q_matched["true_position"], label="True Position", color="black", linewidth=1)
-axes[0][1].plot(filter_output_data_q_matched["time"], filter_output_data_q_matched["raw_position"], label="Raw Position", color="red", linewidth=1)
 axes[0][1].plot(filter_output_data_q_matched["time"], filter_output_data_q_matched["estimated_position"], label="Estimated Position", color="blue", linewidth=1)
 axes[0][1].set_title("Matched Q", fontsize=14)
 axes[0][1].set_ylabel("Position")
@@ -94,7 +94,7 @@ zoom_data_q_matched = filter_output_data_q_matched[
     & (filter_output_data_q_matched["time"] <= zoom_end_time)
 ]
 
-axes[1][1].plot(zoom_data_q_matched["time"], zoom_data_q_matched["raw_position"], color="red", linewidth=1, label="Raw Position")
+axes[1][1].plot(zoom_data_q_matched["time"], zoom_data_q_matched["raw_position"], color="red", marker=".", linestyle="None", markersize=3, label="Raw Position")
 axes[1][1].plot(zoom_data_q_matched["time"], zoom_data_q_matched["true_position"], color="black", linewidth=1.5, label="True Position")
 axes[1][1].plot(zoom_data_q_matched["time"], zoom_data_q_matched["estimated_position"], color="blue", linewidth=1.5, label="Estimated Position")
 axes[1][1].set_xlim(zoom_start_time, zoom_end_time)
@@ -125,13 +125,13 @@ passes_test_q_matched = values_outside_bounds_q_matched < 0.05 * values_checked_
 if passes_test_q_matched:
     axes[2][1].set_title(
         f"Outside bounds: {values_outside_bounds_q_matched}/{values_checked_q_matched} "
-        f"({outside_percentage_q_matched:.1f}%) < 5%\nWhiteness test: PASS",
+        f"({outside_percentage_q_matched:.1f}%) < 5%\nWhiteness test: $\\mathbf{{PASS}}$",
         fontsize=10
     )
 else:
     axes[2][1].set_title(
         f"Outside bounds: {values_outside_bounds_q_matched}/{values_checked_q_matched} "
-        f"({outside_percentage_q_matched:.1f}%) >= 5%\nWhiteness test: FAIL",
+        f"({outside_percentage_q_matched:.1f}%) $\\geq$ 5%\nWhiteness test: $\\mathbf{{FAIL}}$",
         fontsize=10
     )
 
@@ -140,8 +140,8 @@ axes[2][1].grid(True)
 
 
 # Smaller Q
+axes[0][2].plot(filter_output_data_q_smaller["time"], filter_output_data_q_smaller["raw_position"], label="Raw Position", color="red", marker=".", linestyle="None", markersize=3)
 axes[0][2].plot(filter_output_data_q_smaller["time"], filter_output_data_q_smaller["true_position"], label="True Position", color="black", linewidth=1)
-axes[0][2].plot(filter_output_data_q_smaller["time"], filter_output_data_q_smaller["raw_position"], label="Raw Position", color="red", linewidth=1)
 axes[0][2].plot(filter_output_data_q_smaller["time"], filter_output_data_q_smaller["estimated_position"], label="Estimated Position", color="blue", linewidth=1)
 axes[0][2].set_title("Smaller Q", fontsize=14)
 axes[0][2].set_ylabel("Position")
@@ -154,7 +154,7 @@ zoom_data_q_smaller = filter_output_data_q_smaller[
     & (filter_output_data_q_smaller["time"] <= zoom_end_time)
 ]
 
-axes[1][2].plot(zoom_data_q_smaller["time"], zoom_data_q_smaller["raw_position"], color="red", linewidth=1, label="Raw Position")
+axes[1][2].plot(zoom_data_q_smaller["time"], zoom_data_q_smaller["raw_position"], color="red", marker=".", linestyle="None", markersize=3, label="Raw Position")
 axes[1][2].plot(zoom_data_q_smaller["time"], zoom_data_q_smaller["true_position"], color="black", linewidth=1.5, label="True Position")
 axes[1][2].plot(zoom_data_q_smaller["time"], zoom_data_q_smaller["estimated_position"], color="blue", linewidth=1.5, label="Estimated Position")
 axes[1][2].set_xlim(zoom_start_time, zoom_end_time)
@@ -185,13 +185,13 @@ passes_test_q_smaller = values_outside_bounds_q_smaller < 0.05 * values_checked_
 if passes_test_q_smaller:
     axes[2][2].set_title(
         f"Outside bounds: {values_outside_bounds_q_smaller}/{values_checked_q_smaller} "
-        f"({outside_percentage_q_smaller:.1f}%) < 5%\nWhiteness test: PASS",
+        f"({outside_percentage_q_smaller:.1f}%) < 5%\nWhiteness test: $\\mathbf{{PASS}}$",
         fontsize=10
     )
 else:
     axes[2][2].set_title(
         f"Outside bounds: {values_outside_bounds_q_smaller}/{values_checked_q_smaller} "
-        f"({outside_percentage_q_smaller:.1f}%) >= 5%\nWhiteness test: FAIL",
+        f"({outside_percentage_q_smaller:.1f}%) $\\geq$ 5%\nWhiteness test: $\\mathbf{{FAIL}}$",
         fontsize=10
     )
 
